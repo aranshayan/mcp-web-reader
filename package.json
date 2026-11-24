@@ -1,0 +1,64 @@
+{
+  "name": "@aranshayan/mcp-web-reader",
+  "version": "0.1.0",
+  "description": "MCP server that fetches web pages and turns them into clean, LLM-ready Markdown, with SSRF protection, robots.txt support, size and time limits.",
+  "mcpName": "io.github.aranshayan/mcp-web-reader",
+  "type": "module",
+  "bin": {
+    "mcp-web-reader": "dist/index.js"
+  },
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "prepublishOnly": "npm run typecheck && npm test && npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "mcp-server",
+    "web",
+    "fetch",
+    "scraper",
+    "readability",
+    "markdown",
+    "claude"
+  ],
+  "author": "aranshayan",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aranshayan/mcp-web-reader.git"
+  },
+  "homepage": "https://github.com/aranshayan/mcp-web-reader#readme",
+  "bugs": {
+    "url": "https://github.com/aranshayan/mcp-web-reader/issues"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "@mozilla/readability": "^0.6.0",
+    "linkedom": "^0.18.15",
+    "robots-parser": "^3.1.1",
+    "turndown": "^7.2.5",
+    "turndown-plugin-gfm": "^1.0.2",
+    "undici": "^8.13.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/turndown": "^5.0.6",
+    "tsup": "^9.0.0",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.1"
+  }
+}
