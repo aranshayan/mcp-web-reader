@@ -21,7 +21,8 @@
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "prepublishOnly": "npm run typecheck && npm test && npm run build"
+    "prepublishOnly": "npm run typecheck && npm test && npm run build",
+    "smoke": "node scripts/smoke.mjs"
   },
   "keywords": [
     "mcp",
