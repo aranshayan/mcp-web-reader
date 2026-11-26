@@ -1,0 +1,14 @@
+[
+  { "name": "Plain page", "url": "https://example.com/", "expect": "Example Domain" },
+  { "name": "Redirect to www", "url": "https://wikipedia.org/wiki/Markdown", "expect": "Markdown" },
+  { "name": "Encyclopedia article", "url": "https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol", "expect": "HTTP" },
+  { "name": "MDN reference", "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status", "expect": "404" },
+  { "name": "Node.js API docs", "url": "https://nodejs.org/api/fs.html", "expect": "readFile" },
+  { "name": "Python docs", "url": "https://docs.python.org/3/library/json.html", "expect": "json.dumps" },
+  { "name": "Go docs", "url": "https://go.dev/doc/effective_go", "expect": "gofmt" },
+  { "name": "Large RFC", "url": "https://www.rfc-editor.org/rfc/rfc9110.html", "expect": "HTTP Semantics" },
+  { "name": "License text", "url": "https://www.gnu.org/licenses/gpl-3.0.html", "expect": "GNU GENERAL PUBLIC LICENSE" },
+  { "name": "Rust book", "url": "https://doc.rust-lang.org/book/ch04-01-what-is-ownership.html", "expect": "ownership" },
+  { "name": "JSON API response", "url": "https://registry.npmjs.org/left-pad", "expect": "left-pad" },
+  { "name": "W3C specification", "url": "https://www.w3.org/TR/WCAG22/", "expect": "Web Content Accessibility Guidelines" }
+]

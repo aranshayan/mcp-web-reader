@@ -50,7 +50,7 @@ Environment: `MCP_WEB_ALLOW_PRIVATE`, `MCP_WEB_IGNORE_ROBOTS`, `MCP_WEB_ALLOWED_
 
 ## Tests
 
-`npm test` covers the IP classifier (IPv4/IPv6 edge cases), URL policy, extraction, pagination, size/type limits, robots.txt, redirect loops, proof that blocked requests never reach the server, and the built CLI over stdio. Not tested: behaviour against the live internet (tests use a local HTTP server).
+`npm test` covers the IP classifier (IPv4/IPv6 edge cases), URL policy, extraction, pagination, size/type limits, robots.txt, redirect loops, proof that blocked requests never reach the server, and the built CLI over stdio. Against the live internet, `npm run build && npm run smoke` reads 12 stable public pages (docs sites, a large RFC, a redirect, a JSON API) through the built CLI and checks each one. The "Live smoke test" workflow runs it weekly and on demand, never on pull requests, so a site that is down cannot block a merge. The list is in `scripts/smoke-sites.json`.
 
 ## License
 
