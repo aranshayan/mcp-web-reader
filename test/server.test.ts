@@ -30,6 +30,16 @@ beforeAll(async () => {
     if (url === "/private") return void res.writeHead(200, { "content-type": "text/html" }).end("<p>secret</p>");
     if (url === "/image") return void res.writeHead(200, { "content-type": "image/png" }).end(Buffer.alloc(10));
     if (url === "/big") return void res.writeHead(200, { "content-type": "text/plain" }).end("x".repeat(50_000));
+    if (url === "/forbidden") return void res.writeHead(403, { "content-type": "text/html" }).end("<p>no access</p>");
+    if (url === "/down") return void res.writeHead(503, { "content-type": "text/html" }).end("<p>maintenance</p>");
+    if (url === "/vercel-check")
+      return void res
+        .writeHead(403, { "content-type": "text/html" })
+        .end('<html><head><title>Vercel Security Checkpoint</title></head><body><p>We\'re verifying your browser</p><a href="https://vercel.link/security-checkpoint">Website owner?</a></body></html>');
+    if (url === "/cloudflare-200")
+      return void res
+        .writeHead(200, { "content-type": "text/html" })
+        .end('<html><head><title>Just a moment...</title></head><body><script src="/cdn-cgi/challenge-platform/h/b/orchestrate/chl_page/v1"></script></body></html>');
     res.writeHead(404, { "content-type": "text/html" }).end("<p>nope</p>");
   });
   await new Promise<void>((r) => http.listen(0, "127.0.0.1", r));
@@ -133,6 +143,52 @@ describe("extract_links / page_metadata", () => {
     const { h, done } = await open();
     const data = JSON.parse((await h.call("page_metadata", { url: `${base}/article` })).text);
     expect(data).toMatchObject({ title: "Test Article", description: "A description", language: "en", siteName: "Site", canonical: `${base}/canonical` });
+    await done();
+  });
+});
+
+describe("error status and bot checks", () => {
+  it("reports 4xx and 5xx responses as errors with the status and reason", async () => {
+    const { h, done } = await open();
+    for (const [path, line] of [["/missing", "HTTP 404 Not Found"], ["/forbidden", "HTTP 403 Forbidden"], ["/down", "HTTP 503 Service Unavailable"]] as const) {
+      const r = await h.call("fetch_page", { url: `${base}${path}` });
+      expect(r.isError, path).toBe(true);
+      expect(r.text, path).toContain(line);
+      expect(r.text, path).toContain("allow_error_status=true");
+      expect(r.text, path).not.toMatch(/nope|no access|maintenance/);
+    }
+    await done();
+  });
+
+  it("returns the error page with allow_error_status", async () => {
+    const { h, done } = await open();
+    const r = await h.call("fetch_page", { url: `${base}/missing`, allow_error_status: true });
+    expect(r.isError).toBe(false);
+    expect(r.text).toContain("HTTP status: 404");
+    expect(r.text).toContain("nope");
+    await done();
+  });
+
+  it("names bot checks and says not to retry, even with allow_error_status", async () => {
+    const { h, done } = await open();
+    const vercel = await h.call("fetch_page", { url: `${base}/vercel-check`, allow_error_status: true });
+    expect(vercel.isError).toBe(true);
+    expect(vercel.text).toMatch(/Vercel Security Checkpoint bot check \(HTTP 403\)/);
+    expect(vercel.text).toMatch(/retrying will not help/);
+    expect(vercel.text).not.toContain("verifying your browser");
+    // Some challenges come back with HTTP 200.
+    const cloudflare = await h.call("fetch_page", { url: `${base}/cloudflare-200` });
+    expect(cloudflare.isError).toBe(true);
+    expect(cloudflare.text).toMatch(/Cloudflare bot check \(HTTP 200\)/);
+    await done();
+  });
+
+  it("does not list links from error pages, but metadata still reports the status", async () => {
+    const { h, done } = await open();
+    expect((await h.call("extract_links", { url: `${base}/missing` })).isError).toBe(true);
+    const meta = await h.call("page_metadata", { url: `${base}/missing` });
+    expect(meta.isError).toBe(false);
+    expect(JSON.parse(meta.text).status).toBe(404);
     await done();
   });
 });
