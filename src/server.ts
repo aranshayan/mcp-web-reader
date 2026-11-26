@@ -1,4 +1,5 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { responseProblem } from "./status.js";
 import { z } from "zod";
 import { extractLinks, extractMain, extractMeta } from "./extract.js";
 import { Fetcher, type FetchPolicy } from "./fetcher.js";
@@ -34,12 +35,15 @@ export function createServer(policy: FetchPolicy): { server: McpServer; fetcher:
         main_content: z.boolean().default(true).describe("Extract only the main article (true) or convert the whole page (false)."),
         max_chars: z.number().int().min(500).max(200_000).default(20_000).describe("Maximum characters to return."),
         start_index: z.number().int().min(0).default(0).describe("Character offset to start from (for pagination)."),
+        allow_error_status: z.boolean().default(false).describe("Return the body of 4xx/5xx responses instead of an error."),
       },
       annotations: READONLY,
     },
-    async ({ url, format, main_content, max_chars, start_index }): Promise<ToolResult> => {
+    async ({ url, format, main_content, max_chars, start_index, allow_error_status }): Promise<ToolResult> => {
       try {
         const page = await fetcher.fetchText(url);
+        const problem = responseProblem(page, allow_error_status ?? false);
+        if (problem) return fail(new Error(problem));
         let title: string | null = null;
         let byline: string | null = null;
         let content: string;
@@ -93,6 +97,8 @@ export function createServer(policy: FetchPolicy): { server: McpServer; fetcher:
     async ({ url, same_domain_only, limit }): Promise<ToolResult> => {
       try {
         const page = await fetcher.fetchText(url);
+        const problem = responseProblem(page, false);
+        if (problem) return fail(new Error(problem));
         const links = extractLinks(page.body, page.finalUrl, same_domain_only ?? false);
         const max = limit ?? 100;
         return ok(JSON.stringify({ url: page.finalUrl, total: links.length, links: links.slice(0, max), truncated: links.length > max }));

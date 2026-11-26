@@ -10,6 +10,7 @@ An [MCP](https://modelcontextprotocol.io) server that lets Claude **read web pag
 - **Polite.** Honours `robots.txt`, identifies itself with a clear User-Agent.
 - **Bounded.** Response size cap, request timeout, redirect limit, content-type allowlist (text/HTML/JSON/XML only).
 - **Paginated.** Long pages are read in pieces with `start_index`.
+- **Honest about failures.** 4xx/5xx responses come back as errors with the status, not as page content (`allow_error_status` reads the error page anyway). Bot checks from Vercel, Cloudflare, Imperva, DDoS-Guard and AWS WAF are named as such, with a note that retrying will not help.
 - Pure JS, no browser, no native dependencies. (Pages that need JavaScript to render are not supported.)
 
 ## Quick start
@@ -28,7 +29,7 @@ Claude Code: `claude mcp add web -- npx -y @aranshayan/mcp-web-reader`. Requires
 
 | Tool | Description |
 | --- | --- |
-| `fetch_page` | Page → Markdown (or text). Options: `main_content`, `max_chars`, `start_index`. |
+| `fetch_page` | Page → Markdown (or text). Options: `main_content`, `max_chars`, `start_index`, `allow_error_status`. |
 | `extract_links` | Unique absolute http(s) links, optionally same-domain only. |
 | `page_metadata` | Title, description, canonical URL, language, Open Graph. |
 
