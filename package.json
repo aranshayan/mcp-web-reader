@@ -1,6 +1,6 @@
 {
   "name": "@aranshayan/mcp-web-reader",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "MCP server that fetches web pages and turns them into clean, LLM-ready Markdown, with SSRF protection, robots.txt support, size and time limits.",
   "mcpName": "io.github.aranshayan/mcp-web-reader",
   "type": "module",
