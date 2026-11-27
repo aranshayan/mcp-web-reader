@@ -1,7 +1,10 @@
 name: Release
 
-# Publishes to npm with provenance when a version tag (v*) is pushed.
-# Requires an NPM_TOKEN repository secret (an npm automation token).
+# Publishes to npm when a version tag (v*) is pushed, using npm trusted
+# publishing (OIDC). No npm token is stored anywhere: npm checks that the run
+# comes from this repository and this workflow file, and adds provenance.
+# One-time setup on npmjs.com: package Settings > Trusted Publisher > GitHub
+# Actions, with this repository and the workflow file name release.yml.
 on:
   push:
     tags: ["v*"]
@@ -20,10 +23,10 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org
           cache: npm
+      # Trusted publishing needs npm 11.5.1 or later.
+      - run: npm install -g npm@12.2.3
       - run: npm ci
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
-      - run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: npm publish --access public
